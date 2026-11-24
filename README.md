@@ -77,7 +77,7 @@ diff -r derived refreshed/derived
 
 ## 6　重新编排文件
 
-正式论文未指定目标期刊模板，采用通用 A4 学术体例和 GB/T 7714—2025 顺序编码引文。作者为周家乐。展示 PPTX 的备注区提供 3、4、5、3 分钟讲述节奏。
+正式论文未指定目标期刊模板，采用通用 A4 学术体例和 GB/T 7714—2025 顺序编码引文。作者为William Chou。展示 PPTX 的备注区提供 3、4、5、3 分钟讲述节奏。
 
 ```sh
 python -m pip install -r requirements-layout.txt
