@@ -1,0 +1,80 @@
+[
+  {
+    "name": "snapshot_20210724063600_id_",
+    "url": "https://web.archive.org/web/20210724063600id_/https://app.uniswap.org/",
+    "status": 503,
+    "error": "upstream connect error or disconnect/reset before headers. reset reason: connection timeout"
+  },
+  {
+    "name": "snapshot_20210724063600_if_",
+    "url": "https://web.archive.org/web/20210724063600if_/https://app.uniswap.org/",
+    "status": 503,
+    "error": "upstream connect error or disconnect/reset before headers. reset reason: connection timeout"
+  },
+  {
+    "name": "snapshot_20210724063600_",
+    "url": "https://web.archive.org/web/20210724063600/https://app.uniswap.org/",
+    "status": 503,
+    "error": "upstream connect error or disconnect/reset before headers. reset reason: connection timeout"
+  },
+  {
+    "name": "snapshot_20210727082713_id_",
+    "url": "https://web.archive.org/web/20210727082713id_/https://app.uniswap.org/",
+    "status": 503,
+    "error": "upstream connect error or disconnect/reset before headers. reset reason: connection timeout"
+  },
+  {
+    "name": "snapshot_20210727082713_if_",
+    "url": "https://web.archive.org/web/20210727082713if_/https://app.uniswap.org/",
+    "status": 503,
+    "error": "upstream connect error or disconnect/reset before headers. reset reason: connection timeout"
+  },
+  {
+    "name": "snapshot_20210727082713_",
+    "url": "https://web.archive.org/web/20210727082713/https://app.uniswap.org/",
+    "status": 503,
+    "error": "upstream connect error or disconnect/reset before headers. reset reason: connection timeout"
+  },
+  {
+    "name": "snapshot_20210723215700_id_",
+    "url": "https://web.archive.org/web/20210723215700id_/https://app.uniswap.org/",
+    "status": 503,
+    "error": "upstream connect error or disconnect/reset before headers. reset reason: connection timeout"
+  },
+  {
+    "name": "snapshot_20210723215700_if_",
+    "url": "https://web.archive.org/web/20210723215700if_/https://app.uniswap.org/",
+    "status": 503,
+    "error": "upstream connect error or disconnect/reset before headers. reset reason: connection timeout"
+  },
+  {
+    "name": "snapshot_20210723215700_",
+    "url": "https://web.archive.org/web/20210723215700/https://app.uniswap.org/",
+    "status": 503,
+    "error": "upstream connect error or disconnect/reset before headers. reset reason: connection timeout"
+  },
+  {
+    "name": "wayback_exact_cdx",
+    "url": "https://web.archive.org/cdx/search/cdx?url=app.uniswap.org%2F&matchType=exact&filter=statuscode%3A200&from=20210722&to=20210727&output=json",
+    "status": 503,
+    "error": "upstream connect error or disconnect/reset before headers. reset reason: connection timeout"
+  },
+  {
+    "name": "wayback_cdx_ia",
+    "url": "https://web.archive.org/cdx/search/cdx?url=app.uniswap.org&matchType=domain&from=20210724&to=20210724&output=json",
+    "status": 503,
+    "error": "upstream connect error or disconnect/reset before headers. reset reason: connection timeout"
+  },
+  {
+    "name": "wayback_http_alt",
+    "url": "https://web.archive.org/web/20210724063600id_/http://app.uniswap.org/",
+    "status": 503,
+    "error": "upstream connect error or disconnect/reset before headers. reset reason: connection timeout"
+  },
+  {
+    "name": "wayback_redirect_alt",
+    "url": "https://wayback-api.archive.org/web/20210724063600id_/https://app.uniswap.org/",
+    "status": 503,
+    "error": "upstream connect error or disconnect/reset before headers. reset reason: connection timeout"
+  }
+]

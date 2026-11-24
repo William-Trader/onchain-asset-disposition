@@ -1,0 +1,42 @@
+[
+  {
+    "key": "pr_comments",
+    "url": "https://api.github.com/repos/Uniswap/interface/issues/2100/comments?per_page=100",
+    "http": 200
+  },
+  {
+    "key": "pr_timeline",
+    "url": "https://api.github.com/repos/Uniswap/interface/issues/2100/timeline?per_page=100",
+    "http": 200
+  },
+  {
+    "key": "list_history_until_end",
+    "url": "https://api.github.com/repos/Uniswap/interface/commits?path=src/constants/tokenLists/unsupported.tokenlist.json&until=2021-08-07T00%3A00%3A00Z",
+    "http": 200
+  },
+  {
+    "key": "tweet_embed",
+    "url": "https://publish.twitter.com/oembed?url=https%3A%2F%2Ftwitter.com%2FUniswap%2Fstatus%2F1418697012095164420&omit_script=true",
+    "http": 200
+  },
+  {
+    "key": "tweet_syndication",
+    "url": "https://cdn.syndication.twimg.com/tweet-result?id=1418697012095164420&lang=en&token=0",
+    "http": 200
+  },
+  {
+    "key": "arquivo_history",
+    "url": "https://arquivo.pt/textsearch?versionHistory=https%3A%2F%2Fapp.uniswap.org%2F&from=20210722000000&to=20210807000000&maxItems=10",
+    "http": 200
+  },
+  {
+    "key": "archive_prod_0723",
+    "url": "https://archive.org/wayback/available?url=https%3A%2F%2Fapp.uniswap.org%2F&timestamp=20210723220520",
+    "http": 200
+  },
+  {
+    "key": "archive_prod_0724_swap",
+    "url": "https://archive.org/wayback/available?url=https%3A%2F%2Fapp.uniswap.org%2F%23%2Fswap&timestamp=20210724064834",
+    "http": 200
+  }
+]
