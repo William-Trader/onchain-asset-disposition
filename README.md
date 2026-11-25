@@ -1,90 +1,105 @@
 # 数字资产交易服务受限下的用户资产处置能力
-## William Chou · 投稿修订版复现资料
+## Mt.Gox 与 Uniswap v3 的条件式机制检验 · William Chou
 
-这份资料覆盖生产前端取证、129 个名单地址的主网 v3 全量筛查、前后各 7 日与 14 日比较、同钱包收付轨迹、最低到账归档对照及逐价格步费用复算。编码使用 UTF-8。CSV 带 UTF-8 BOM。使用电子表格时请将地址、哈希和 wei 整数列按文本导入。
+从压缩包顶层打开论文或技术附录。两者均提供可编辑 Word 和已排版 PDF。本目录包含研究源文件。主文、附录和复算数据均为同一修订版本。
 
-## 1　离线复算
+### 复现正文的数值
 
-需要 Python 3.10 以上。链上复算程序仅用标准库，无需网络、API 密钥和私钥。
-
-```sh
-python reproduce_all.py --out verification
-diff -r derived verification
-```
-
-GNU/Linux 上可在运行前执行 `sha256sum -c SHA256SUMS.txt`。归档的 `.json.gz` 可直接由 Python 读取，解压工具也能打开。原文件是相应 JSON-RPC 方法的 `result`，回放文件同时保存方法、参数和协议响应。日志以 UTC 为准，金额以 wei 或合约的最小计量单位为准。末位不可用二进制浮点复算。
-
-### 期望结果
-
-| 指标 | 核对值 |
-|---|---:|
-| 固定名单主网地址 | 129 |
-| Factory 建池日志 | 3,739 |
-| 匹配名单资产／池 | 6／7 |
-| 前后各 14 日有 Swap 的名单资产 | 1（sETH） |
-| 28 个观察日内的 Swap 日志／去重成交 | 16／15 |
-| 前 7／前 14 日 Swap 日志 | 6／10 |
-| 后 7／后 14 日 Swap 日志 | 6／6 |
-| 后 7／后 14 日严格 0x 卖出 | 2／2（同两笔） |
-| 收付闭环归档实验 | 3 个历史样本、105 个参数点、210 次节点调用 |
-| 每笔成功与回滚阈值之差 | 1 wei |
-| 样本 A 与 B 池费／合计可观测成本 | 0.000281300000000002／0.000207700000000001 sETH；116.25337／149.32312 bps |
-| 生产部署记录时间 | 2021-07-23 22:05:20 UTC |
-| 官方发布声明时间 | 2021-07-23 22:18:20 UTC |
-| 生产域名实际生效时点 | 证据不足，见 `deployment_summary.json` |
-
-## 2　在线独立重取
-
-以当前目录作为解压后的复现包根目录。选择一个空的输出目录即可重新获取全部交易、回执和历史状态。
+解压本研究包并在本文件所在目录运行。Python 3.10 或以上即可；本次验证环境为 CPython 3.12.14，核心计算全部使用标准库。
 
 ```sh
-python census.py --collect --raw refreshed/census --out refreshed/derived
-python thresholds.py --collect --census-raw refreshed/census   --raw refreshed/thresholds --out refreshed/derived
-python deployment.py --raw raw/deployment --census refreshed/census --out refreshed/derived
-diff -r derived refreshed/derived
+python verify.py
 ```
 
-默认以 Tenderly 与 Alchemy 对照 Factory 与 Swap，Tenderly 与 dRPC 对照回执，调用轨迹由 dRPC 提供。门槛实验及逐价格步复算状态由 Tenderly 与 dRPC 交叉核对。可设置：
+该命令逐文件核验 SHA-256，重算历史建池普查、每条 Swap、门槛、tick 成本及前端证据，再重算本次新增的持仓、市场价差、路径净得、全额报价与费用预算。三组输出分别与 `evidence/derived/`、`derived/` 和 `additions/derived/` 逐字节比较。其中第三组覆盖名单全窗、两个钱包回滚、市场敏感性、管财人偿付条款与进度及治理回执。最后使用独立的原始字段读取及 SQLite 检查主要结果。运行会创建临时输出目录，不写入冻结的原始数据。请保留 Python 默认断言，不要加 -O。最后一行应为 `Offline reproduction passed; historical and new output directories match byte for byte.`。这里的独立检查指不同计算程序，没有第二位审稿人参与。
 
-- `RESEARCH_PRIMARY_RPC`：以太坊主网归档 RPC，提供 `eth_chainId`、`eth_getBlockByNumber`、`eth_getLogs`、`eth_getTransactionByHash`、`eth_getTransactionReceipt` 与历史 `eth_call`。
-- `RESEARCH_SECONDARY_RPC`：第二个主网节点，提供早期主网日志和多地址筛选。
-- `RESEARCH_TRACE_RPC`：主网归档 RPC，提供 `trace_transaction`、历史 `eth_call`、`eth_getCode`、回执和日志。
+若需观察某一步的输出，运行以下命令。
+```sh
+python analyze.py --out results
+python decision.py --out results
+python decision.py --out results --cap 100
+python audit.py
+```
 
-公开节点限流时可用 `--workers 2` 降低并发。程序遇到无效节点响应即停止，不将错误填充为零。遇到请求范围限制，自动分割区块再核验。历史调用须返回原始 ABI 回滚数据。离线方式独立于节点状态，只依赖资料包。若重新获取同源公共元数据，部署状态可能随时间变化，引用以包中冻结 JSON 为准。
+| 所在位置 | 内容 | 期望核对结果 |
+| --- | --- | --- |
+| evidence/derived/census_summary.json | 129 个主网名单地址和整段建池、成交普查 | 3,739 条 Factory 日志，6 个名单资产、7 个池，双 14 日只有 sETH 发出 Swap。16 条日志、15 笔去重，后窗 2 笔严格闭环。 |
+| evidence/derived/threshold_grid.csv、swap_fee_steps.csv | 三笔历史路径的整数门槛与逐步池费 | 105 个配对门槛，210 次调用；相邻成功与回滚边界相差 1 wei。 |
+| derived/holdings.csv、transfers.csv | 公告前余额、卖出前余额、双向历史日志、第一笔正额入账 | A 公告前余额为 0。B 公告前余额 415404002756450395，卖出 415400000000000000，单位均为 sETH 的最小单位。 |
+| derived/gox_market.csv、summary.json | 33 个 UTC 日期、3 家市场、两个参照价差；Bitstamp 官方日线区间核对 | 各 14 日相对 Bitstamp 的日价差中位数 +17.29% 与 −39.63%。 |
+| derived/counterfactuals.csv、conditions.csv | 三个历史钱包 × 五个钱包执行情景，逐条记录授权、用气、毛额和净额 | 原路径 3/3 重放与真实金额及 Gas 相等。无新增授权的 6 个替代情景回滚；加入授权的 6 个完成。失败情景毛额和净额列为空。 |
+| derived/trade_quotes.csv、daily_quotes.csv | 交易前同量报价和每日固定规模比较、v3 输入消耗、等额价格缺口 | 28 日 × 4 个卖量 = 112 个价格比较单元。112 个正报价，84 个 v3 全额，28 个部分。部分输入单元价格缺口留空。 |
+| derived/decision.csv | 各种费用预算下可通过的路径及最高历史模拟净到账 | 100 bp 且许可新授权时，A 有 3 条，B 有 1 条，净得最高者均为 Curve。此示例的分母是毛到账，费用含本次必要的新授权。 |
+| text/ | 论文、技术附录与图表的文字和生成源 | 正文含 9 张表、3 幅图，附录列出全部 19 条评审意见及证据边界。 |
 
-## 3　原始数据与选择规则
+### 本轮数据、分母与复核
 
-- `baseline/raw/` 保存 2021 年固定名单、前一版本本地名单、主机名和规则源码、固定版本池代码、Mt.Gox 公告，以及上一版 7 日实验的原始快照。`baseline/reproduce.py` 是旧口径核验程序。
-- `raw/census/` 保存两个节点的全部 3,739 条 Factory 日志、两家节点按周段和池地址查询的 Swap、UTC 边界与相邻区块、15 笔交易和双源回执、3 条调用轨迹及发送地址历史代码。
-- `raw/deployment/` 保存 GitHub PR、部署记录和状态、官方消息结构化存档、2021-08-06 名单和网页存档索引。HTTP 失败日志记录本次检索所能达到的证据边界。
-- `raw/thresholds/` 保存历史价格、tick 数据与池日志的双节点快照，以及每个数额在两家节点的完整调用输入和响应。
-- `derived/` 保存池名单、各代币各窗口的覆盖表、每条 Swap、去重交易、严格收付闭环、逐价格步池费、门槛网格和结构化汇总。
-- `sources.csv` 列出主要来源和包内文件入口。`manuscript/` 含论文、图和四页课堂展示的源文件。
+下列路径均相对于本目录。离线重算只用 Python 标准库。运行 `python additions/recalculate.py --out results_expanded` 可单独生成本轮结果。
 
-链 ID 限定为 1。按 Factory 事件筛查任一代币端，不按符号配对。7 日窗嵌套于 14 日窗，两个方向不跨越 7 月 23 日事件日。两个节点输出按区块哈希、交易哈希、日志索引、合约、主题与 ABI 数据逐条核对。7 个池全部保留，包括无成交池。0x 只是严格规则的目标路由，其他调用即便实际成交也留在总体池日志和去重表内。前后 28 个观察日共有 15 笔去重成交，其中 3 笔符合严格规则。后窗一笔交易包含两个 Swap 加上其他池活动，净转账无法由 Swap 事件单独解释，故计入成交但未计入池净额一致的日志。
+| 文件 | 计量单位及用途 |
+| --- | --- |
+| additions/panel/list_2021.json、additions/derived/restricted_addresses.csv | 固定提交的链 ID 1 名单及完整地址，原始 JSON 和便于筛选的 129 行 CSV。 |
+| additions/panel/bound_*.json.gz、additions/derived/window_totals.csv | 8 个 UTC 边界分别保存前后相邻区块头。输出每个窗口含首尾区块，均为闭区间。工厂与 Swap 日志由 Tenderly 和 Alchemy 核对；边界用 dRPC 区块头。 |
+| additions/derived/address_by_window.csv | 129 × 8 × 2 行。no_pool 为截至该窗口末未建池；pool_zero 为已建池但窗内零成交；positive 为有 Swap。zero_logs=no_pool+pool_zero。池较晚建成时，仅从创建块开始计活动。 |
+| additions/derived/listed_pools.csv、listed_swaps.csv | 全 61 天三场所 70 个名单池、2,773 个事件、2,718 笔交易。CSV 保存交易哈希、日志序号、区块哈希和代币净输入，正数为流入池。工厂扫描同时匹配名单资产两侧，剔除非名单的辅助检索地址。 |
+| additions/raw/account_*.json、acct_receipt_*、failed_trace_*、*_nonce_* | 两个地址各自的区块浏览器原始返回、176 份回执（88 笔各由两家查询）、两笔回滚轨迹及四处边界 nonce。派生 wallet_counts.csv 与 wallet_mined_txs.csv 仅覆盖该地址的已上链外发。 |
+| additions/raw/forum_topic.json、forum_evidence.json、web_index.json | 原帖完整 JSON、逐帖 UTC、摘录、请求 URL 和存档请求成败。网页索引不是资源已部署的凭证。 |
+| additions/raw/plan_en.pdf、trustee_*.pdf、*.txt | 管财人文件和排版保留文本。payment_bounds.csv 给累计下界；schedule_rates.csv 给计划条款下的五档日元算例。没有个人实际到账底册。 |
+| additions/raw/*_price.csv.gz、*_volume.csv.gz、fx_usd_eur.csv | Bitcoinity 价格、以 BTC 计的每日成交量、ECB 每欧元美元数。另三家美元价格在 raw/。market_by_day.csv 和 market_sensitivity.csv 可重新计算所有窗口、分母、权重和 FX 配对。 |
+| additions/raw/gov_receipt_*、owner_logs_*、fee_logs_*、gov_owner_* | 完整治理执行回执、变更事件、空数组原始返回和历史 owner() 结果。 |
+| additions/derived/ | 本轮数值输出；其中金额最小单位或超长整数宜以文本导入电子表格。SHA256SUMS.txt 覆盖全部随附研究文件。 |
 
-扩展窗内的 8 月 6 日提交新增一个地址，保留原 129 个地址。新增地址也在完整 Factory 日志中核查，仍无匹配池。该口径变化不影响窗口结果。
+三家服务名称代表访问端点。尚无自托管归档节点，多个端点可能共享数据来源。链上扩样的 25 个活跃资产只证明相应池有过交换。严格的“事前持有—事后实际卖出—原钱包收到 ETH”仍是 B 一例。完整 mempool、未广播和放弃行为不在冻结数据内。
 
-## 4　归档复算和成本定义
+### 在线重新采集本轮扩展
 
-`thresholds.py` 保持发送者、路由、路径、输入量、Gas 及历史区块固定，只改变最低到账金额。每个历史样本取 35 个去重整数门槛。双节点基准成功值与历史到账 Q 完全一致，门槛为 Q + 1 wei 即触发确定的最小到账约束。没有签名和提交交易，模拟失败与真实成交样本分开。
-
-用历史流动性和已初始化 tick 逐步复算 v3 的净输入、舍入后池费、输出、终止价格与流动性。成本分解用同一个基准，即输入量乘交易前池内边际价格。池费折算、其余成交偏离和本笔 Gas 的和是合计成本。Gas 占实收的百分比另列。授权费用、放弃成本和用户看到的前端报价未在此数据中观测。
-
-## 5　生产证据识别
-
-2021-07-23 22:05:14 UTC 的提交可定位规则。22:05:20 的 GitHub 记录证明 Vercel 机器人为同一 SHA 创建了环境名称为 Production 的部署任务。22:18:20 的官方消息为运营方当时的声明。Wayback 的 2021-07-24 06:36:00 索引早于第一次后窗成交 12 分 34 秒，实际页面脚本未被此次检验恢复。公开状态只显示后来 inactive 且无环境 URL。PR 成功部署的是 Preview，不能据此认定官方生产域名生效。统计窗口锚定公告日。
-
-## 6　重新编排文件
-
-正式论文未指定目标期刊模板，采用通用 A4 学术体例和 GB/T 7714—2025 顺序编码引文。作者为William Chou。展示 PPTX 的备注区提供 3、4、5、3 分钟讲述节奏。
+在本研究目录运行下列命令。按需将供应商接口改为具备历史能力的地址。在线服务可能追加数据、限流或修改返回元数据。若重新取样，应比较研究区间和字段，保留冻结版本。
 
 ```sh
-python -m pip install -r requirements-layout.txt
-python manuscript/draw_figures.py
-python manuscript/build_docx.py --output rebuilt.docx
-python manuscript/build_slides.py --output rebuilt_slides.pptx
-soffice --headless --convert-to pdf rebuilt.docx rebuilt_slides.pptx
+mkdir -p fresh_review/panel fresh_review/raw
+cp additions/panel/list_2021.json additions/panel/mirror_20210712.json fresh_review/panel/
+python additions/panel_methods.py --collect --only-logs --raw fresh_review/panel
+python additions/collect_web.py --out fresh_review/raw
+python additions/extract_documents.py --raw fresh_review/raw
+python additions/collect_chain.py --out fresh_review/raw
+python additions/recalculate.py --raw fresh_review/raw --panel fresh_review/panel --out fresh_review/results
 ```
 
-生成件使用 Noto CJK 和 Liberation 字体。图脚本默认 Linux Noto 字体路径。其他系统可修改字体路径，或直接使用资料包中的 PNG。
+名单已固定为原始提交的历史快照，可直接和正文引用的 Git 版本对照。panel_methods.py 的日志端点可由 JOURNAL_RPC_A、JOURNAL_RPC_B 指定，端点 T 用于边界搜索；collect_chain.py 的端点取 TENDERLY_RPC、DRPC_RPC 和 ALCHEMY_RPC。collect_web.py 记录各下载的结果；缺必要原件时后续程序停止。提取管财人 PDF 的命令需要 Poppler 的 pdftotext，离线校验直接使用包内已经提取的文本。历史回放的 eth_call、trace_call、eth_simulateV1 完整参数均在下面的冻结路径中。
+
+### 输入与在线重取
+
+- `evidence/baseline/raw` 包含 2021 年历史名单、前一版本、主机名逻辑、池源码、账户交易与回执、真实付款轨迹及 Mt.Gox 程序文件。`evidence/raw/{census,deployment,thresholds}` 包含双源扫描、部署元数据、逐门槛请求及价格步状态，文件命名与 `evidence/sources.csv` 对应。
+- `raw/*history*` 与 `raw/*balance*` 分别是自创世到卖出块、按地址过滤的 Transfer 查找和 balanceOf。样本截止块按 UTC 确定；sETH 相关状态量使用 18 位整数。原地址曾经收币与该次实际卖出来自公告前余额，分别编码。
+- `raw/*sim*` 保存 eth_simulateV1 的完整输入与返回。用原 Gas 单价，不覆盖账户授权或余额。新增授权按同一合成块中的第一笔独立调用执行并单独收取 Gas。traceTransfers 合成原生资产移动日志；旧样本的真实链上轨迹独立存放。报价基准由历史区块具体指定，未回放其他候选真实交易，没有排队或等待成本。
+- `raw/utc*` 保存每日首块和父块的核验字段。`raw/quotes*` 保存报价请求及返回。`raw/fills*` 保存 v3 Quoter 的 trace_call 调用树，核验回调实际输入和输出。Quoter 在内部回滚以传回报价是其正常机制，合成测试中的单笔用户交易回滚另行标注。`raw/*csv.gz` 为 Bitcoinity 的按交易所导出；`bitstamp_ohlc.json` 用于检查均价落于官方日内区间。价格资料是历史聚合数据，不具备逐客户归属。
+- `raw/swap_page.tsx`、`tokens_hooks.ts`、`useIsSwapUnsupported.ts` 与上述名单钩子共同识别禁用按钮。Solidity、Vyper 和法院文件提供制度、实现与行为旁证。`sources.py` 列完整来源 URL，正文所引公开链接保存在 `text/paper.md` 和 `文献与数据来源.csv`。
+
+在线复取使用空目录，不覆盖冻结数据。来源网址变化、公共 RPC 限流或历史能力被移除时，可直接离线复核。
+```sh
+python sources.py --raw fresh
+python protocol.py --raw fresh
+python routes.py --raw fresh
+python grid.py --raw fresh
+python fills.py --raw fresh
+python analyze.py --raw fresh --out new_results
+python decision.py --out new_results
+```
+提供方使用 Tenderly、Alchemy 及 dRPC，可设置 TENDERLY_RPC、ALCHEMY_RPC、DRPC_RPC 指向具备相应能力的主网归档服务。protocol.py 需 eth_getLogs、历史 eth_call 和区块头；routes.py 需支持含 traceTransfers 的 eth_simulateV1；fills.py 需 trace_call。grid.py 对首块猜测用 DefiLlama 的公开时间戳接口，随后用相邻实际区块头校验 UTC 边界；接口不可达时会使用近似高度再搜索。Bitcoinity 原始导出可能随时间追加新日期，在线复算比较派生研究窗口即可。重新获取旧 129 地址部分可运行以下命令。
+```sh
+python evidence/census.py --collect --raw fresh_base/census --out fresh_base/results
+python evidence/thresholds.py --collect --census-raw fresh_base/census --raw fresh_base/thresholds --out fresh_base/results
+python evidence/deployment.py --raw evidence/raw/deployment --census fresh_base/census --out fresh_base/results
+```
+
+### 图文重排
+
+分析代码和下载文件均可在没有 Word 的机器上使用。重建论文和图另需 python-docx 1.2.0、Matplotlib 3.10.8、Pillow 13.0.0，以及 Noto Serif/Sans CJK SC 和 Liberation 字体；图脚本的 Linux 字体路径可按安装位置修改。
+```sh
+python text/plot.py
+python text/build_docx.py --source text/paper.md --output paper.docx
+python text/build_docx.py --source text/technical.md --output appendix.docx
+soffice --headless --convert-to pdf paper.docx appendix.docx
+```
+
+稿件未指定新的目标期刊，排版采用 A4、连续页码、顺序编码引文和双语摘要。AI 辅助了数据采集、计算核验、图表和文字修订；署名人应在拟投稿时核对署名和目标期刊的披露条件。

@@ -1,0 +1,122 @@
+{
+  "plan_en.pdf": {
+    "url": "https://www.mtgox.com/d/04y7ivbnz5gw.pdf",
+    "status": 200,
+    "bytes": 677938
+  },
+  "fx_usd_eur.csv": {
+    "url": "https://data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A?startPeriod=2014-01-01&endPeriod=2014-02-25&format=csvdata",
+    "status": 200,
+    "bytes": 8399
+  },
+  "wayback_0636.html": {
+    "url": "https://web.archive.org/web/20210724063600id_/https://app.uniswap.org/",
+    "status": 503,
+    "error": "HTTP Error 503: Service Unavailable"
+  },
+  "wayback_scripts.json": {
+    "url": "https://web.archive.org/cdx/search/cdx?url=app.uniswap.org%2Fstatic%2Fjs%2F*&from=20210723&to=20210727&output=json&filter=statuscode%3A200",
+    "status": 503,
+    "error": "HTTP Error 503: Service Unavailable"
+  },
+  "cc2021.json": {
+    "url": "https://index.commoncrawl.org/CC-MAIN-2021-31-index?url=app.uniswap.org&output=json",
+    "status": 504,
+    "error": "HTTP Error 504: Gateway Timeout"
+  },
+  "archive_today.json": {
+    "url": "https://archive.org/wayback/available?url=app.uniswap.org&timestamp=20210724063600",
+    "status": 200,
+    "bytes": 238
+  },
+  "trustee_20211116.pdf": {
+    "url": "https://www.mtgox.com/img/pdf/20211116_announcement_en.pdf",
+    "status": 200,
+    "bytes": 164554
+  },
+  "trustee_20240716.pdf": {
+    "url": "https://www.mtgox.com/img/pdf/20240716_c63b18e5-6a79-4f24-9c1c-3dbd74dc6f78_announcement_en.pdf",
+    "status": 200,
+    "bytes": 89191
+  },
+  "trustee_20240724.pdf": {
+    "url": "https://www.mtgox.com/img/pdf/20240724_aeedf9f1-7f27-40ec-ad70-26d2811167a5_announcement_en.pdf",
+    "status": 200,
+    "bytes": 66576
+  },
+  "trustee_20240731.pdf": {
+    "url": "https://www.mtgox.com/img/pdf/20240731_f6e19c0e-85b0-41f6-8102-2e8cafc9c498_announcement_en.pdf",
+    "status": 200,
+    "bytes": 79273
+  },
+  "trustee_20240821.pdf": {
+    "url": "https://www.mtgox.com/img/pdf/20240821_e8dbec0c-1fd8-42b5-b0d9-0b98ab42587c_announcement_en.pdf",
+    "status": 200,
+    "bytes": 79094
+  },
+  "trustee_20250327.pdf": {
+    "url": "https://www.mtgox.com/img/pdf/20250327_50441ef4-dc28-473a-9fd2-495db2da4bbd_announcement_en.pdf",
+    "status": 200,
+    "bytes": 92343
+  },
+  "mtgox_USD_volume.csv.gz": {
+    "url": "https://data.bitcoinity.org/export_data.csv?c=e&data_type=volume&r=day&t=l&timespan=all&currency=USD&exchange=mtgox",
+    "status": 200,
+    "bytes": 48863
+  },
+  "bitstamp_USD_volume.csv.gz": {
+    "url": "https://data.bitcoinity.org/export_data.csv?c=e&data_type=volume&r=day&t=l&timespan=all&currency=USD&exchange=bitstamp",
+    "status": 200,
+    "bytes": 211200
+  },
+  "bitfinex_USD_volume.csv.gz": {
+    "url": "https://data.bitcoinity.org/export_data.csv?c=e&data_type=volume&r=day&t=l&timespan=all&currency=USD&exchange=bitfinex",
+    "status": 200,
+    "bytes": 196899
+  },
+  "mtgox_EUR_price.csv.gz": {
+    "url": "https://data.bitcoinity.org/export_data.csv?c=e&data_type=price&r=day&t=l&timespan=all&currency=EUR&exchange=mtgox",
+    "status": 200,
+    "bytes": 49280
+  },
+  "btce_USD_price.csv.gz": {
+    "url": "https://data.bitcoinity.org/export_data.csv?c=e&data_type=price&r=day&t=l&timespan=all&currency=USD&exchange=btce",
+    "status": 200,
+    "bytes": 97163
+  },
+  "kraken_USD_price.csv.gz": {
+    "url": "https://data.bitcoinity.org/export_data.csv?c=e&data_type=price&r=day&t=l&timespan=all&currency=USD&exchange=kraken",
+    "status": 200,
+    "bytes": 271243
+  },
+  "account_A.json": {
+    "url": "https://eth.blockscout.com/api?module=account&action=txlist&address=0x2ead300eab9e407aa5e96766b2bc69d871d7f790&startblock=12789855&endblock=12974517&page=1&offset=1000&sort=asc",
+    "status": 200,
+    "bytes": 26680
+  },
+  "account_B.json": {
+    "url": "https://eth.blockscout.com/api?module=account&action=txlist&address=0x269ea4cd75a8ecabff55e47a34453801e412b991&startblock=12789855&endblock=12974517&page=1&offset=1000&sort=asc",
+    "status": 200,
+    "bytes": 76279
+  },
+  "trustee_20221004.pdf": {
+    "url": "https://www.mtgox.com/img/pdf/20221004_announcement_en.pdf",
+    "status": 200,
+    "bytes": 187720
+  },
+  "trustee_20221028.pdf": {
+    "url": "https://www.mtgox.com/img/pdf/20221028_announcement_en.pdf",
+    "status": 200,
+    "bytes": 189428
+  },
+  "trustee_20240705.pdf": {
+    "url": "https://www.mtgox.com/img/pdf/20240705_01_announcement_en.pdf",
+    "status": 200,
+    "bytes": 87391
+  },
+  "forum_topic.json": {
+    "url": "https://gov.uniswap.org/t/13586.json",
+    "status": 200,
+    "bytes": 20128
+  }
+}

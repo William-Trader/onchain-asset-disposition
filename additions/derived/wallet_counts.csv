@@ -1,0 +1,7 @@
+﻿sample,period,nonce_start,nonce_end,mined,reverted,strict
+A,pre,253,259,6,0,0
+A,event,259,260,1,0,0
+A,post,260,269,9,1,1
+B,pre,867,879,12,0,0
+B,event,879,879,0,0,0
+B,post,879,939,60,1,1

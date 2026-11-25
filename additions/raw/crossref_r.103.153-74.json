@@ -1,0 +1,34 @@
+{
+  "DOI": "10.20955/r.103.153-74",
+  "title": [
+    "Decentralized Finance: On Blockchain- and Smart Contract-Based Financial Markets"
+  ],
+  "volume": "103",
+  "issue": "2",
+  "page": null,
+  "article-number": null,
+  "published": {
+    "date-parts": [
+      [
+        2021
+      ]
+    ]
+  },
+  "container-title": [
+    "Review"
+  ],
+  "author": [
+    {
+      "given": "Fabian",
+      "family": "Schär",
+      "sequence": "first",
+      "affiliation": [],
+      "role": [
+        {
+          "vocabulary": "crossref",
+          "role": "author"
+        }
+      ]
+    }
+  ]
+}
