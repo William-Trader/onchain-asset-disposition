@@ -30,7 +30,7 @@ python audit.py
 | derived/counterfactuals.csv、conditions.csv | 三个历史钱包 × 五个钱包执行情景，逐条记录授权、用气、毛额和净额 | 原路径 3/3 重放与真实金额及 Gas 相等。无新增授权的 6 个替代情景回滚；加入授权的 6 个完成。失败情景毛额和净额列为空。 |
 | derived/trade_quotes.csv、daily_quotes.csv | 交易前同量报价和每日固定规模比较、v3 输入消耗、等额价格缺口 | 28 日 × 4 个卖量 = 112 个价格比较单元。112 个正报价，84 个 v3 全额，28 个部分。部分输入单元价格缺口留空。 |
 | derived/decision.csv | 各种费用预算下可通过的路径及最高历史模拟净到账 | 100 bp 且许可新授权时，A 有 3 条，B 有 1 条，净得最高者均为 Curve。此示例的分母是毛到账，费用含本次必要的新授权。 |
-| text/ | 论文、技术附录与图表的文字和生成源 | 正文含 9 张表、3 幅图，附录列出全部 19 条评审意见及证据边界。 |
+| text/ | 技术附录与图表的生成源 | 正文含 11 张表、3 幅图，附录包含前轮修改记录、逐项回应及本轮 14 笔同址收付的判定规则。 |
 
 ### 本轮数据、分母与复核
 
@@ -73,7 +73,7 @@ python additions/recalculate.py --raw fresh_review/raw --panel fresh_review/pane
 - `raw/*history*` 与 `raw/*balance*` 分别是自创世到卖出块、按地址过滤的 Transfer 查找和 balanceOf。样本截止块按 UTC 确定；sETH 相关状态量使用 18 位整数。原地址曾经收币与该次实际卖出来自公告前余额，分别编码。
 - `raw/*sim*` 保存 eth_simulateV1 的完整输入与返回。用原 Gas 单价，不覆盖账户授权或余额。新增授权按同一合成块中的第一笔独立调用执行并单独收取 Gas。traceTransfers 合成原生资产移动日志；旧样本的真实链上轨迹独立存放。报价基准由历史区块具体指定，未回放其他候选真实交易，没有排队或等待成本。
 - `raw/utc*` 保存每日首块和父块的核验字段。`raw/quotes*` 保存报价请求及返回。`raw/fills*` 保存 v3 Quoter 的 trace_call 调用树，核验回调实际输入和输出。Quoter 在内部回滚以传回报价是其正常机制，合成测试中的单笔用户交易回滚另行标注。`raw/*csv.gz` 为 Bitcoinity 的按交易所导出；`bitstamp_ohlc.json` 用于检查均价落于官方日内区间。价格资料是历史聚合数据，不具备逐客户归属。
-- `raw/swap_page.tsx`、`tokens_hooks.ts`、`useIsSwapUnsupported.ts` 与上述名单钩子共同识别禁用按钮。Solidity、Vyper 和法院文件提供制度、实现与行为旁证。`sources.py` 列完整来源 URL，正文所引公开链接保存在 `text/paper.md` 和 `文献与数据来源.csv`。
+- `raw/swap_page.tsx`、`tokens_hooks.ts`、`useIsSwapUnsupported.ts` 与上述名单钩子共同识别禁用按钮。Solidity、Vyper 和法院文件提供制度、实现与行为旁证。`sources.py` 列完整来源 URL，正文所引公开链接保存在论文及 `文献与数据来源.csv`。
 
 在线复取使用空目录，不覆盖冻结数据。来源网址变化、公共 RPC 限流或历史能力被移除时，可直接离线复核。
 ```sh
@@ -97,9 +97,27 @@ python evidence/deployment.py --raw evidence/raw/deployment --census fresh_base/
 分析代码和下载文件均可在没有 Word 的机器上使用。重建论文和图另需 python-docx 1.2.0、Matplotlib 3.10.8、Pillow 13.0.0，以及 Noto Serif/Sans CJK SC 和 Liberation 字体；图脚本的 Linux 字体路径可按安装位置修改。
 ```sh
 python text/plot.py
-python text/build_docx.py --source text/paper.md --output paper.docx
 python text/build_docx.py --source text/technical.md --output appendix.docx
 soffice --headless --convert-to pdf paper.docx appendix.docx
 ```
 
-稿件未指定新的目标期刊，排版采用 A4、连续页码、顺序编码引文和双语摘要。AI 辅助了数据采集、计算核验、图表和文字修订；署名人应在拟投稿时核对署名和目标期刊的披露条件。
+稿件未指定新的目标期刊，排版采用 A4、连续页码、顺序编码引文和中文摘要。AI 辅助了数据采集、计算核验、图表和文字修订；署名人应在拟投稿时核对署名和目标期刊的披露条件。
+
+
+### 1127 终稿新增复现
+
+在本目录运行 python verify.py。校验器还会重建 final_review/derived 的逐日价差、公开时间间隔、配对路径收费门槛，以及后 14 日三场所的直接入池付款筛查。原始回执、双源公告日前余额和 Transfer 请求记录在 final_review/raw。定稿 Word、PDF 与 Markdown 位于压缩包根目录。解压全包后，Markdown 可加载本文三幅图。
+
+    python final_review/wallet_probe.py --out /tmp/wallet_screen
+    python final_review/review_metrics.py --out /tmp/review_metrics
+    python final_review/rpc_check.py --url http://127.0.0.1:8545
+
+最后一条命令已以商用归档端点测试，可接入读者自己的以太坊主网归档节点，重取公告日前余额、交易回执及原交易参数下的 eth_call。需要重取扩展筛查时，可在新副本中新建空的 final_review/raw，再运行 python final_review/wallet_probe.py --collect --out /tmp/wallet_screen。原始返回与字段差异可供排查。出现计数、哈希或回执冲突时暂停汇总。商用节点的一致性不能证明底层后台独立。
+
+日度价格的零值记为缺失。公告到交易的时间间隔不等于订单时长。成交量与汇率敏感性可用 additions/recalculate.py 复算。
+
+
+### 精修稿的新增核验
+
+运行 python verify.py 可重建 36 个直接入池的地址—代币组合，以及 14 笔动用旧余额的同址交付记录。程序对 14 笔交付逐项核对公告前及付款前的余额、池间转账、最终收款和本次网络费。收款结果和样本构成分别见 final_review/derived/settlement_rows.csv 和 settlement_summary.csv。新增双源回执、转出日志、余额和池查询均保留在 final_review/raw。
+单独复算交付时，在本目录运行 python final_review/settlement.py --out <输出目录>。程序默认读取随包的候选列表，verify.py 则把本次生成的候选 CSV 传入。在线模式使用 --collect，发出归档读请求。三场所的筛查范围包含 Uniswap v2、Uniswap v3 和 SushiSwap v2。

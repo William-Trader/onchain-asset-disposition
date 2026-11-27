@@ -40,6 +40,10 @@ def verify():
         run("audit.py")
         run("additions/recalculate.py", "--out", tmp / "expanded")
         compare(ROOT / "additions/derived", tmp / "expanded")
+        run("final_review/wallet_probe.py", "--out", tmp / "final")
+        run("final_review/review_metrics.py", "--out", tmp / "final")
+        run("final_review/settlement.py", "--input", tmp / "final/wallet_inventory_probe.csv", "--out", tmp / "final")
+        compare(ROOT / "final_review/derived", tmp / "final")
     print(
         "Offline reproduction passed; historical and new output directories match byte for byte."
     )

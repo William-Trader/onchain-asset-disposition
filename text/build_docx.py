@@ -284,12 +284,13 @@ def add_table(doc, rows, width_cm, keep_note=False):
         "UTC 窗口（2021 年）": (0.24, 0.26, 0.16, 0.18, 0.16),
         "覆盖范围和时段": (0.28, 0.13, 0.18, 0.14, 0.27),
         "意见": (0.18, 0.52, 0.30),
+        "评审意见": (0.25, 0.75),
         "判据": (0.16, 0.39, 0.45),
         "环节": (0.19, 0.37, 0.44),
         "期间": (0.34, 0.20, 0.23, 0.23),
         "窗口": (0.25, 0.16, 0.16, 0.20, 0.23),
         "钱包": (0.24, 0.38, 0.38),
-        "项目": (0.41, 0.295, 0.295),
+        "项目": (0.30, 0.35, 0.35),
         "历史情景": (0.34, 0.13, 0.17, 0.18, 0.18),
         "指定卖量": (0.23, 0.20, 0.21, 0.19, 0.17),
         "费用预算": (0.22, 0.22, 0.28, 0.28),
@@ -330,7 +331,7 @@ def add_table(doc, rows, width_cm, keep_note=False):
             paragraph = cell.paragraphs[0]
             paragraph.style = "Paper Table Header" if i == 0 else "Paper Table"
             paragraph.paragraph_format.keep_with_next = i == 0
-            if j and rows[0][0] not in ("判据", "环节", "任务", "问题", "证据"):
+            if j and rows[0][0] not in ("判据", "环节", "任务", "问题", "证据", "评审意见", "意见"):
                 paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
             paragraph.add_run(text)
     return table
@@ -429,7 +430,7 @@ def build(source, output):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", type=Path, default=ROOT / "paper.md")
+    parser.add_argument("--source", type=Path, default=ROOT / "technical.md")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     build(args.source, args.output)

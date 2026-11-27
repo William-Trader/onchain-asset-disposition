@@ -432,8 +432,8 @@ def main(raw, dest):
             ),
         }
 
-    (dest / "summary.json").write_text(
-        json.dumps(summary, indent=2, ensure_ascii=False) + "\n"
+    (dest / "summary.json").write_bytes(
+        (json.dumps(summary, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
     )
 
 
